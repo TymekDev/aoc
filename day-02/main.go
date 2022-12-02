@@ -16,10 +16,13 @@ const (
 
 func main() {
 	// Part 1
-	println(totalScore(input()))
+	println(totalScore(input(), parseLinePart1))
+
+	// Part 2
+	println(totalScore(input(), parseLinePart2))
 }
 
-func totalScore(lines []string) int {
+func totalScore(lines []string, parseLine lineParser) int {
 	result := 0
 	for _, line := range lines {
 		them, me := parseLine(line)
@@ -37,9 +40,40 @@ var m map[string]Shape = map[string]Shape{
 	"Z": Scissors,
 }
 
-func parseLine(line string) (them Shape, me Shape) {
+type lineParser func(line string) (them Shape, me Shape)
+
+func parseLinePart1(line string) (them Shape, me Shape) {
 	l := strings.Split(line, " ")
 	return m[l[0]], m[l[1]]
+}
+
+func parseLinePart2(line string) (them Shape, me Shape) {
+	l := strings.Split(line, " ")
+	them = m[l[0]]
+	switch l[1] {
+	case "X": // lose
+		switch them {
+		case Rock:
+			me = Scissors
+		case Scissors:
+			me = Paper
+		case Paper:
+			me = Rock
+		}
+	case "Y": // draw
+		me = them
+	case "Z": // win
+		switch them {
+		case Rock:
+			me = Paper
+		case Scissors:
+			me = Rock
+		case Paper:
+			me = Scissors
+		}
+	}
+
+	return them, me
 }
 
 func roundScore(them, me Shape) int {

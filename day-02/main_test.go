@@ -12,7 +12,35 @@ func TestTotalScore(t *testing.T) {
 		"B X",
 		"C Z",
 	}
-	assert.Equal(t, 15, totalScore(lines))
+	assert.Equal(t, 15, totalScore(lines, parseLinePart1))
+	assert.Equal(t, 12, totalScore(lines, parseLinePart2))
+}
+
+func TestParseLinePart2(t *testing.T) {
+	tests := []struct {
+		name       string
+		line       string
+		resultThem Shape
+		resultMe   Shape
+	}{
+		{"Rock Lose", "A X", Rock, Scissors},
+		{"Rock Draw", "A Y", Rock, Rock},
+		{"Rock Win", "A Z", Rock, Paper},
+		{"Paper Lose", "B X", Paper, Rock},
+		{"Paper Draw", "B Y", Paper, Paper},
+		{"Paper Win", "B Z", Paper, Scissors},
+		{"Scissors Lose", "C X", Scissors, Paper},
+		{"Scissors Draw", "C Y", Scissors, Scissors},
+		{"Scissors Win", "C Z", Scissors, Rock},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			them, me := parseLinePart2(tt.line)
+			assert.Equal(t, tt.resultThem, them)
+			assert.Equal(t, tt.resultMe, me)
+		})
+	}
 }
 
 func TestRoundScore(t *testing.T) {
