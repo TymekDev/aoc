@@ -8,6 +8,7 @@ import (
 
 type Shape int
 
+// NOTE: x wins with y if and only if (4-x)%3 == 3-y
 const (
 	Rock Shape = iota + 1
 	Paper
@@ -52,25 +53,11 @@ func parseLinePart2(line string) (them Shape, me Shape) {
 	them = m[l[0]]
 	switch l[1] {
 	case "X": // lose
-		switch them {
-		case Rock:
-			me = Scissors
-		case Scissors:
-			me = Paper
-		case Paper:
-			me = Rock
-		}
+		me = 3 - (4-them)%3
 	case "Y": // draw
 		me = them
 	case "Z": // win
-		switch them {
-		case Rock:
-			me = Paper
-		case Scissors:
-			me = Rock
-		case Paper:
-			me = Scissors
-		}
+		me = them%3 + 1
 	}
 
 	return them, me
@@ -82,9 +69,7 @@ func roundScore(them, me Shape) int {
 
 func outcome(them, me Shape) int {
 	switch {
-	case me == Rock && them == Scissors,
-		me == Scissors && them == Paper,
-		me == Paper && them == Rock:
+	case (4-me)%3 == 3-them:
 		return 6
 	case me == them:
 		return 3
