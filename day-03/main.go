@@ -9,6 +9,51 @@ import (
 func main() {
 	// Part 1
 	println(sumItemPriorities())
+
+	// Part 2
+	println(sumBadgesPriorities())
+}
+
+func sumBadgesPriorities() (int, error) {
+	lines, err := input()
+	if err != nil {
+		return 0, err
+	}
+
+	result := 0
+	for i := 0; i < len(lines); i += 3 {
+		p, err := getPriorityForTheOnlyCommonRune(lines[i], lines[i+1], lines[i+2])
+		if err != nil {
+			return 0, err
+		}
+
+		result += p
+	}
+
+	return result, nil
+}
+
+func getPriorityForTheOnlyCommonRune(line1, line2, line3 string) (int, error) {
+	occurences := [52][3]int{}
+
+	for i, line := range []string{line1, line2, line3} {
+		for _, r := range line {
+			p, err := priority(r)
+			if err != nil {
+				return 0, err
+			}
+
+			occurences[p-1][i]++
+		}
+	}
+
+	for i, occ := range occurences {
+		if occ[0] > 0 && occ[1] > 0 && occ[2] > 0 {
+			return i + 1, nil
+		}
+	}
+
+	return 0, errors.New("not found")
 }
 
 func sumItemPriorities() (int, error) {

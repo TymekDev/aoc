@@ -8,6 +8,40 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestGetPriorityForTheOnlyCommonRune(t *testing.T) {
+	tests := []struct {
+		lines  [3]string
+		result rune
+	}{
+		{
+			[3]string{
+				"vJrwpWtwJgWrhcsFMMfFFhFp",
+				"jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL",
+				"PmmdzqPrVvPwwTWBwg",
+			},
+			'r',
+		},
+		{
+			[3]string{
+				"wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn",
+				"ttgJtRGJQctTZtZT",
+				"CrZsJsPPZsGzwwsLwLmpwMDw",
+			},
+			'Z',
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(string(tt.result), func(t *testing.T) {
+			p, err := priority(tt.result)
+			require.NoError(t, err)
+			result, err := getPriorityForTheOnlyCommonRune(tt.lines[0], tt.lines[1], tt.lines[2])
+			require.NoError(t, err)
+			assert.Equal(t, p, result)
+		})
+	}
+}
+
 func TestPriority(t *testing.T) {
 	tests := []struct {
 		r      rune
