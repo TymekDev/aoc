@@ -11,6 +11,9 @@ import (
 func main() {
 	// Part 1
 	aoc.RunSolution(countFullOverlaps)
+
+	// Part 2
+	aoc.RunSolution(countAnyOverlaps)
 }
 
 func countFullOverlaps(input []string) (int, error) {
@@ -22,6 +25,22 @@ func countFullOverlaps(input []string) (int, error) {
 		}
 
 		if rp.overlapFull() {
+			result++
+		}
+	}
+
+	return result, nil
+}
+
+func countAnyOverlaps(input []string) (int, error) {
+	result := 0
+	for _, line := range input {
+		rp, err := newRangePairFromInput(line)
+		if err != nil {
+			return 0, err
+		}
+
+		if rp.overlapAny() {
 			result++
 		}
 	}
@@ -57,6 +76,10 @@ func (rp *rangePair) overlapFull() bool {
 	return rp.r1.containsFully(rp.r2) || rp.r2.containsFully(rp.r1)
 }
 
+func (rp *rangePair) overlapAny() bool {
+	return rp.r1.containsEnd(rp.r2) || rp.r2.containsEnd(rp.r1)
+}
+
 type Range struct {
 	Lower int
 	Upper int
@@ -83,4 +106,9 @@ func newRangeFromInput(input string /* <lower>-<upper> */) (*Range, error) {
 
 func (r *Range) containsFully(inner *Range) bool {
 	return r.Lower <= inner.Lower && inner.Upper <= r.Upper
+}
+
+func (r *Range) containsEnd(other *Range) bool {
+	return (r.Lower <= other.Lower && other.Lower <= r.Upper) ||
+		(r.Lower <= other.Upper && other.Upper <= r.Upper)
 }
