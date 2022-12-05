@@ -10,10 +10,10 @@ import (
 
 func main() {
 	// Part 1
-	aoc.RunSolution(countFullOverlaps)
+	aoc.RunSolution(countFullOverlaps, "\n")
 
 	// Part 2
-	aoc.RunSolution(countAnyOverlaps)
+	aoc.RunSolution(countAnyOverlaps, "\n")
 }
 
 func countFullOverlaps(input []string) (int, error) {

@@ -8,16 +8,16 @@ import (
 
 type solution func([]string) (int, error)
 
-func RunSolution(f solution) {
-	run(f, input)
+func RunSolution(f solution, sep string) {
+	run(f, input, sep)
 }
 
-func RunExample(f solution) {
-	run(f, example)
+func RunExample(f solution, sep string) {
+	run(f, example, sep)
 }
 
-func run(f solution, i func() ([]string, error)) {
-	input, err := i()
+func run(f solution, i func(string) ([]string, error), sep string) {
+	input, err := i(sep)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -30,18 +30,18 @@ func run(f solution, i func() ([]string, error)) {
 	println(result)
 }
 
-func input() ([]string, error) {
-	return read("input.txt")
+func input(sep string) ([]string, error) {
+	return read("input.txt", sep)
 }
 
-func example() ([]string, error) {
-	return read("input_example.txt")
+func example(sep string) ([]string, error) {
+	return read("input_example.txt", sep)
 }
 
-func read(fileName string) ([]string, error) {
+func read(fileName, sep string) ([]string, error) {
 	b, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		return nil, err
 	}
-	return strings.Split(strings.TrimSuffix(string(b), "\n"), "\n"), nil
+	return strings.Split(strings.TrimSuffix(string(b), "\n"), sep), nil
 }
