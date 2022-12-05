@@ -55,25 +55,36 @@ func parseLine(line string) (int, int, int, error) {
 		return 0, 0, 0, err
 	}
 
+	// Switch to 0-based indexing
 	return from - 1, to - 1, n, nil
 }
 
 type stacks []*crate
 
+type crate struct {
+	label string
+	below *crate
+}
+
+// cratesInput:
+// "    [D]    "
+// "[N] [C]    "
+// "[Z] [M] [P]"
+// " 1   2   3 "
 func newStacks(cratesInput []string) stacks {
 	nCrates := len(strings.Fields(cratesInput[len(cratesInput)-1]))
 	result := make(stacks, nCrates)
 
-	// cratesInput:
-	// "    [D]    "
-	// "[N] [C]    "
-	// "[Z] [M] [P]"
-	// " 1   2   3 "
-	for i := len(cratesInput) - 2; i >= 0; i-- {
-		for j := 0; j < nCrates; j++ {
-			if label := cratesInput[i][1+j*4]; label != ' ' {
-				result[j] = &crate{string(label), result[j]}
+	// Go bottom to top
+	for i := 0; i < nCrates; i++ {
+		for lvl := len(cratesInput) - 2; lvl >= 0; lvl-- {
+			label := cratesInput[lvl][1+i*4]
+			// If we reached top of the stack `i`, then move onto the next one
+			if label == ' ' {
+				break
 			}
+			// Stack found crates
+			result[i] = &crate{string(label), result[i]}
 		}
 	}
 
@@ -94,9 +105,4 @@ func (s stacks) move(from, to int) {
 
 	s[from] = belowFrom
 	s[to] = crateOnMove
-}
-
-type crate struct {
-	label string
-	below *crate
 }
