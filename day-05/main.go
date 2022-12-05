@@ -10,71 +10,28 @@ import (
 
 func main() {
 	// Part 1
-	aoc.RunSolution(getTopsAfter1by1Moves, "\n\n")
+	aoc.RunSolution(part1, "\n\n")
 
 	// Part2
-	aoc.RunExample(getTopsAfterBulkMoves, "\n\n")
-	aoc.RunSolution(getTopsAfterBulkMoves, "\n\n")
+	aoc.RunSolution(part2, "\n\n")
 }
 
-func getTopsAfterBulkMoves(input []string) (string, error) {
+func part1(input []string) (string, error) {
 	if len(input) != 2 {
 		return "", errors.New("wrong input")
 	}
 
 	s := newStacks(strings.Split(input[0], "\n"))
-
-	for _, line := range strings.Split(input[1], "\n") {
-		from, to, n, err := parseLine(line)
-		if err != nil {
-			return "", err
-		}
-
-		s.moveBulk(from, to, n)
-	}
-
-	return s.tops(), nil
+	return s.solve(input[1], s.moveN)
 }
 
-func getTopsAfter1by1Moves(input []string) (string, error) {
+func part2(input []string) (string, error) {
 	if len(input) != 2 {
 		return "", errors.New("wrong input")
 	}
 
 	s := newStacks(strings.Split(input[0], "\n"))
-
-	for _, line := range strings.Split(input[1], "\n") {
-		from, to, n, err := parseLine(line)
-		if err != nil {
-			return "", err
-		}
-
-		s.moveN(from, to, n)
-	}
-
-	return s.tops(), nil
-}
-
-func parseLine(line string) (int, int, int, error) {
-	fields := strings.Fields(line)
-
-	n, err := strconv.Atoi(fields[1])
-	if err != nil {
-		return 0, 0, 0, err
-	}
-
-	from, err := strconv.Atoi(fields[3])
-	if err != nil {
-		return 0, 0, 0, err
-	}
-
-	to, err := strconv.Atoi(fields[5])
-	if err != nil {
-		return 0, 0, 0, err
-	}
-
-	// Switch to 0-based indexing
-	return from - 1, to - 1, n, nil
+	return s.solve(input[1], s.moveBulk)
 }
 
 type stacks []*crate
@@ -138,10 +95,42 @@ func (s stacks) move(from, to int) {
 	s[to] = crateOnMove
 }
 
-func (s stacks) tops() string {
+func (s stacks) solve(input string, f func(int, int, int)) (string, error) {
+	for _, line := range strings.Split(input, "\n") {
+		from, to, n, err := parseLine(line)
+		if err != nil {
+			return "", err
+		}
+
+		f(from, to, n)
+	}
+
 	var result strings.Builder
 	for _, top := range s {
 		result.WriteString(top.label)
 	}
-	return result.String()
+
+	return result.String(), nil
+}
+
+func parseLine(line string) (int, int, int, error) {
+	fields := strings.Fields(line)
+
+	n, err := strconv.Atoi(fields[1])
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	from, err := strconv.Atoi(fields[3])
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	to, err := strconv.Atoi(fields[5])
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	// Switch to 0-based indexing
+	return from - 1, to - 1, n, nil
 }
