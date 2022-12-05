@@ -6,17 +6,21 @@ import (
 	"strings"
 )
 
-type solution func([]string) (int, error)
+type solution[T answer] func([]string) (T, error)
 
-func RunSolution(f solution, sep string) {
+type answer interface {
+	int | string
+}
+
+func RunSolution[T answer](f solution[T], sep string) {
 	run(f, input, sep)
 }
 
-func RunExample(f solution, sep string) {
+func RunExample[T answer](f solution[T], sep string) {
 	run(f, example, sep)
 }
 
-func run(f solution, i func(string) ([]string, error), sep string) {
+func run[T answer](f solution[T], i func(string) ([]string, error), sep string) {
 	input, err := i(sep)
 	if err != nil {
 		log.Fatalln(err)
