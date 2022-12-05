@@ -30,6 +30,27 @@ func TestNewStacks(t *testing.T) {
 	assert.Equal(t, (*crate)(nil), s[2].below)
 }
 
+func TestMoveBulk(t *testing.T) {
+	a := &crate{"A", nil}
+	b := &crate{"B", nil}
+	c := &crate{"C", b}
+
+	s := stacks{a, c} // => a, cb
+
+	s.moveBulk(1, 0, 2) // => cba, _
+
+	assert.Equal(t, s[0], c)
+	assert.Equal(t, s[0].below, b)
+	assert.Equal(t, s[0].below.below, a)
+	assert.Equal(t, s[1], (*crate)(nil))
+
+	s.moveBulk(0, 1, 3) // => _, cba,
+	assert.Equal(t, s[1], c)
+	assert.Equal(t, s[1].below, b)
+	assert.Equal(t, s[1].below.below, a)
+	assert.Equal(t, s[0], (*crate)(nil))
+}
+
 func TestMove(t *testing.T) {
 	a := &crate{"A", nil}
 	b := &crate{"B", nil}

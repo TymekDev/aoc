@@ -10,10 +10,33 @@ import (
 
 func main() {
 	// Part 1
-	aoc.RunSolution(getTops, "\n\n")
+	aoc.RunSolution(getTopsAfter1by1Moves, "\n\n")
+
+	// Part2
+	aoc.RunExample(getTopsAfterBulkMoves, "\n\n")
+	aoc.RunSolution(getTopsAfterBulkMoves, "\n\n")
 }
 
-func getTops(input []string) (string, error) {
+func getTopsAfterBulkMoves(input []string) (string, error) {
+	if len(input) != 2 {
+		return "", errors.New("wrong input")
+	}
+
+	s := newStacks(strings.Split(input[0], "\n"))
+
+	for _, line := range strings.Split(input[1], "\n") {
+		from, to, n, err := parseLine(line)
+		if err != nil {
+			return "", err
+		}
+
+		s.moveBulk(from, to, n)
+	}
+
+	return s.tops(), nil
+}
+
+func getTopsAfter1by1Moves(input []string) (string, error) {
 	if len(input) != 2 {
 		return "", errors.New("wrong input")
 	}
@@ -29,12 +52,7 @@ func getTops(input []string) (string, error) {
 		s.moveN(from, to, n)
 	}
 
-	var result strings.Builder
-	for _, top := range s {
-		result.WriteString(top.label)
-	}
-
-	return result.String(), nil
+	return s.tops(), nil
 }
 
 func parseLine(line string) (int, int, int, error) {
@@ -91,6 +109,19 @@ func newStacks(cratesInput []string) stacks {
 	return result
 }
 
+func (s stacks) moveBulk(from, to, n int) {
+	bottomOnMove := s[from]
+	// grab n crates
+	for i := 0; i < n-1; i++ {
+		bottomOnMove = bottomOnMove.below
+	}
+
+	topOnMove := s[from]
+	s[from] = bottomOnMove.below
+	bottomOnMove.below = s[to]
+	s[to] = topOnMove
+}
+
 func (s stacks) moveN(from, to, n int) {
 	for i := 0; i < n; i++ {
 		s.move(from, to)
@@ -105,4 +136,12 @@ func (s stacks) move(from, to int) {
 
 	s[from] = belowFrom
 	s[to] = crateOnMove
+}
+
+func (s stacks) tops() string {
+	var result strings.Builder
+	for _, top := range s {
+		result.WriteString(top.label)
+	}
+	return result.String()
 }
