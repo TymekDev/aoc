@@ -11,12 +11,23 @@ import (
 func main() {
 	// Part 1
 	aoc.RunSolution(part1, "\n")
+
+	// Part 2
+	aoc.RunSolution(part2, "\n")
+}
+
+func part2(input []string) (string, error) {
+	return solution(input, 14)
 }
 
 func part1(input []string) (string, error) {
+	return solution(input, 4)
+}
+
+func solution(input []string, peekSize int) (string, error) {
 	result := make([]string, len(input))
 	for i, line := range input {
-		n, err := newScanner(line).scan()
+		n, err := newScanner(line).scan(peekSize)
 		if err != nil {
 			return "", err
 		}
@@ -45,9 +56,9 @@ func (s *scanner) next() bool {
 	return s.position <= len(s.input)
 }
 
-func (s *scanner) isMarker() bool {
+func (s *scanner) isMarker(peekSize int) bool {
 	m := map[string]struct{}{}
-	for i := 0; i < 4; i++ {
+	for i := 0; i < peekSize; i++ {
 		b := s.peek(i)
 		if _, ok := m[string(b)]; ok {
 			return false // found duplicate
@@ -57,11 +68,10 @@ func (s *scanner) isMarker() bool {
 	return true
 }
 
-func (s *scanner) scan() (int, error) {
+func (s *scanner) scan(peekSize int) (int, error) {
 	for s.next() {
-		if s.isMarker() {
-			// 1-base indexed end of marker
-			return s.position + 4, nil
+		if s.isMarker(peekSize) {
+			return s.position + peekSize, nil
 		}
 	}
 
