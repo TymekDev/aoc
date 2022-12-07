@@ -2,11 +2,59 @@ package main
 
 import (
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestRootDirectoryFromInput(t *testing.T) {
+	input := strings.Split(`$ cd /
+$ ls
+dir a
+14848514 b.txt
+8504156 c.dat
+dir d
+$ cd a
+$ ls
+dir e
+29116 f
+2557 g
+62596 h.lst
+$ cd e
+$ ls
+584 i
+$ cd ..
+$ cd ..
+$ cd d
+$ ls
+4060174 j
+8033020 d.log
+5626152 d.ext
+7214296 k`, "\n")
+
+	root, err := rootDirectoryFromInput(input)
+	require.NoError(t, err)
+
+	tests := []struct {
+		path   []string
+		result int
+	}{
+		{[]string{"a", "e"}, 584},
+		{[]string{"a"}, 94853},
+		{[]string{"d"}, 24933642},
+		{nil, 48381165},
+	}
+
+	for i, tt := range tests {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			d, err := root.navigate(tt.path...)
+			require.NoError(t, err)
+			assert.Equal(t, tt.result, d.size())
+		})
+	}
+}
 
 func TestDirectoryNavigate(t *testing.T) {
 	root := newDirectory(nil)

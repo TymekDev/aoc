@@ -2,7 +2,41 @@ package main
 
 import (
 	"errors"
+	"strconv"
+	"strings"
 )
+
+func rootDirectoryFromInput(input []string) (*directory, error) {
+	dir := newDirectory(nil)
+	for _, line := range input {
+		f := strings.Fields(line)
+		switch f[0] {
+		case "$": // `$ cd /` OR $ cd <name>` OR `$ ls`
+			if f[1] == "ls" {
+				continue
+			}
+
+			var err error
+			dir, err = dir.navigate(f[2])
+			if err != nil {
+				return nil, err
+			}
+
+		case "dir": // `dir <dir name>`
+			dir.mkdir(f[1])
+
+		default: // `<size> <file name>`
+			size, err := strconv.Atoi(f[0])
+			if err != nil {
+				return nil, err
+			}
+
+			dir.mkfile(f[1], size)
+		}
+	}
+
+	return dir.navigate("/")
+}
 
 type sizer interface {
 	size() int
