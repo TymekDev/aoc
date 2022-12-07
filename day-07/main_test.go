@@ -10,31 +10,7 @@ import (
 )
 
 func TestRootDirectoryFromInput(t *testing.T) {
-	input := strings.Split(`$ cd /
-$ ls
-dir a
-14848514 b.txt
-8504156 c.dat
-dir d
-$ cd a
-$ ls
-dir e
-29116 f
-2557 g
-62596 h.lst
-$ cd e
-$ ls
-584 i
-$ cd ..
-$ cd ..
-$ cd d
-$ ls
-4060174 j
-8033020 d.log
-5626152 d.ext
-7214296 k`, "\n")
-
-	root, err := rootDirectoryFromInput(input)
+	root, err := rootDirectoryFromInput(input())
 	require.NoError(t, err)
 
 	tests := []struct {
@@ -54,6 +30,20 @@ $ ls
 			assert.Equal(t, tt.result, d.size())
 		})
 	}
+}
+
+func TestDirectoryTraverse(t *testing.T) {
+	root, err := rootDirectoryFromInput(input())
+	require.NoError(t, err)
+
+	result := 0
+	root.traverse(func(d *directory) {
+		if s := d.size(); s <= 100000 {
+			result += s
+		}
+	})
+
+	assert.Equal(t, 95437, result)
 }
 
 func TestDirectoryNavigate(t *testing.T) {
@@ -157,4 +147,30 @@ func TestDirectorySize(t *testing.T) {
 			assert.Equal(t, tt.result, tt.d.size())
 		})
 	}
+}
+
+func input() []string {
+	return strings.Split(`$ cd /
+$ ls
+dir a
+14848514 b.txt
+8504156 c.dat
+dir d
+$ cd a
+$ ls
+dir e
+29116 f
+2557 g
+62596 h.lst
+$ cd e
+$ ls
+584 i
+$ cd ..
+$ cd ..
+$ cd d
+$ ls
+4060174 j
+8033020 d.log
+5626152 d.ext
+7214296 k`, "\n")
 }

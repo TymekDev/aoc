@@ -4,7 +4,29 @@ import (
 	"errors"
 	"strconv"
 	"strings"
+
+	"git.sr.ht/~tymek/aoc-2022"
 )
+
+func main() {
+	aoc.RunSolution(part1, "\n")
+}
+
+func part1(input []string) (int, error) {
+	root, err := rootDirectoryFromInput(input)
+	if err != nil {
+		return 0, err
+	}
+
+	result := 0
+	root.traverse(func(d *directory) {
+		if s := d.size(); s <= 100000 {
+			result += s
+		}
+	})
+
+	return result, nil
+}
 
 func rootDirectoryFromInput(input []string) (*directory, error) {
 	dir := newDirectory(nil)
@@ -99,6 +121,15 @@ func (dir *directory) mkdir(name string) *directory {
 
 func (dir *directory) mkfile(name string, size int) {
 	dir.content[name] = file(size)
+}
+
+func (dir *directory) traverse(f func(*directory)) {
+	f(dir)
+	for _, s := range dir.content {
+		if d, ok := s.(*directory); ok {
+			d.traverse(f)
+		}
+	}
 }
 
 type file int
