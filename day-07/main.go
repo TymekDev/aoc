@@ -10,6 +10,25 @@ import (
 
 func main() {
 	aoc.RunSolution(part1, "\n")
+
+	aoc.RunSolution(part2, "\n")
+}
+
+func part2(input []string) (int, error) {
+	root, err := rootDirectoryFromInput(input)
+	if err != nil {
+		return 0, err
+	}
+
+	result := root.size()
+	free := 70_000_000 - root.size()
+	root.traverse(func(d *directory) {
+		if s := d.size(); free+s >= 30_000_000 && s < result {
+			result = s
+		}
+	})
+
+	return result, nil
 }
 
 func part1(input []string) (int, error) {
