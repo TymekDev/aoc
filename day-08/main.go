@@ -1,68 +1,87 @@
 package main
 
 import (
+	"fmt"
+
 	"git.sr.ht/~tymek/aoc-2022"
 )
 
 func main() {
-	aoc.RunSolution(part1, "\n")
+	aoc.RunExample(solution, "\n")
+	aoc.RunSolution(solution, "\n")
 }
 
-func part1(input []string) (int, error) {
-	result := 0
+func solution(input []string) (string, error) {
+	nVisible := 0
+	maxScore := 0
 	for row, line := range input {
 		for col := range line {
-			height := h(line[col])
 			if row == 0 || row == len(input)-1 || col == 0 || col == len(line)-1 {
-				goto NEXT
+				nVisible++
+				continue
 			}
+
+			height := h(line[col])
+			visible := false
+			score := 1
 
 			// horizontal
 			for i := col - 1; i >= 0; i-- {
 				if h(line[i]) >= height {
+					score *= col - i
 					break
 				}
 				if i == 0 {
-					goto NEXT
+					score *= col - i
+					visible = true
 				}
 			}
 
 			for i := col + 1; i < len(line); i++ {
 				if h(line[i]) >= height {
+					score *= i - col
 					break
 				}
 				if i == len(line)-1 {
-					goto NEXT
+					score *= i - col
+					visible = true
 				}
 			}
 
 			// horizontal
 			for i := row - 1; i >= 0; i-- {
 				if h(input[i][col]) >= height {
+					score *= row - i
 					break
 				}
 				if i == 0 {
-					goto NEXT
+					score *= row - i
+					visible = true
 				}
 			}
 
 			for i := row + 1; i < len(input); i++ {
 				if h(input[i][col]) >= height {
+					score *= i - row
 					break
 				}
 				if i == len(input)-1 {
-					goto NEXT
+					score *= i - row
+					visible = true
 				}
 			}
 
-			continue
+			if visible {
+				nVisible++
+			}
 
-		NEXT:
-			result++
+			if score > maxScore {
+				maxScore = score
+			}
 		}
 	}
 
-	return result, nil
+	return fmt.Sprintf("%d %d\n", nVisible, maxScore), nil
 }
 
 func h(b byte) int {
