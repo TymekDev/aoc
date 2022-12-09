@@ -23,11 +23,7 @@ func TestPointVisited(t *testing.T) {
 		},
 		{
 			[][2]int{{1, 0}, {0, 0}, {1, 0}},
-			1,
-		},
-		{
-			[][2]int{{1, 0}, {0, 0}, {1, 0}},
-			1,
+			2,
 		},
 		{
 			[][2]int{{1, 0}, {1, 2}, {-2, -3}, {-3, -2}},
@@ -72,7 +68,7 @@ func TestPointFollow(t *testing.T) {
 		{newPoint(0, 0), newPoint(-2, -1), newPoint(-1, -1)},
 		{newPoint(0, 0), newPoint(-2, 1), newPoint(-1, 1)},
 		{newPoint(0, 0), newPoint(-1, -2), newPoint(-1, -1)},
-		{newPoint(0, 0), newPoint(1, -2), newPoint(1, -1)},
+		{newPoint(0, 0), newPoint(1, 2), newPoint(1, 1)},
 	}
 
 	for i, tt := range tests {
