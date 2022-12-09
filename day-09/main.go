@@ -27,3 +27,37 @@ func (p *point) uniqueVisitedCount() int {
 	}
 	return result
 }
+
+func (p *point) follow(target *point) {
+	if math.Abs(float64(target.x-p.x)) <= 1 && math.Abs(float64(target.y-p.y)) <= 1 {
+		return
+	}
+
+	switch {
+	// vertical
+	case target.y == p.y && target.x == p.x-2:
+		p.x--
+	case target.y == p.y && target.x == p.x+2:
+		p.x++
+
+	// horizontal
+	case target.x == p.x && target.y == p.y-2:
+		p.y--
+	case target.x == p.x && target.y == p.y+2:
+		p.y++
+
+		// diagonal
+	case target.y < p.y && target.x < p.x:
+		p.x--
+		p.y--
+	case target.y < p.y && target.x > p.x:
+		p.x++
+		p.y--
+	case target.y > p.y && target.x < p.x:
+		p.x--
+		p.y++
+	case target.y > p.y && target.x > p.x:
+		p.x++
+		p.y++
+	}
+}
