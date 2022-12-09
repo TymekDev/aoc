@@ -122,27 +122,15 @@ func (p *point) follow(target *point) {
 		return
 	}
 
-	switch {
-	// vertical
-	case target.y == p.y && target.x == p.x-2:
-		p.move(-1, 0)
-	case target.y == p.y && target.x == p.x+2:
-		p.move(1, 0)
+	p.move(compare(target.x, p.x), compare(target.y, p.y))
+}
 
-	// horizontal
-	case target.x == p.x && target.y == p.y-2:
-		p.move(0, -1)
-	case target.x == p.x && target.y == p.y+2:
-		p.move(0, 1)
-
-		// diagonal
-	case target.y < p.y && target.x < p.x:
-		p.move(-1, -1)
-	case target.y < p.y && target.x > p.x:
-		p.move(1, -1)
-	case target.y > p.y && target.x < p.x:
-		p.move(-1, 1)
-	case target.y > p.y && target.x > p.x:
-		p.move(1, 1)
+func compare(x, y int) int {
+	if x > y {
+		return 1
 	}
+	if x == y {
+		return 0
+	}
+	return -1
 }
