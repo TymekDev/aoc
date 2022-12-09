@@ -11,6 +11,23 @@ import (
 
 func main() {
 	aoc.RunSolution(part1, "\n")
+	aoc.RunSolution(part2, "\n")
+}
+
+func part2(input []string) (int, error) {
+	r := newRope()
+	for _, line := range input {
+		x, y, n, err := parseLine(line)
+		if err != nil {
+			return 0, err
+		}
+
+		for i := 0; i < n; i++ {
+			r.move(x, y)
+		}
+	}
+
+	return r[len(r)-1].uniqueVisitedCount(), nil
 }
 
 func part1(input []string) (int, error) {
@@ -53,6 +70,23 @@ func parseLine(line string) (x int, y int, times int, err error) {
 	}
 
 	return 0, 0, 0, errors.New("incorrect line")
+}
+
+type rope [10]*point
+
+func newRope() *rope {
+	r := &rope{}
+	for i := 0; i < len(r); i++ {
+		r[i] = newPoint(0, 0)
+	}
+	return r
+}
+
+func (r *rope) move(x, y int) {
+	r[0].move(x, y)
+	for i := 1; i < len(r); i++ {
+		r[i].follow(r[i-1])
+	}
 }
 
 type point struct {
