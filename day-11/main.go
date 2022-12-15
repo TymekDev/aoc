@@ -8,24 +8,50 @@ import (
 	"git.sr.ht/~tymek/aoc-2022"
 )
 
+const (
+	_verbose      = false
+	_roundSummary = true
+)
+
 func main() {
 	aoc.RunSolution(part1, "\n\n")
+	aoc.RunExample(part2, "\n\n")
+}
+
+func part2(input []string) (int, error) {
+	return solution(input, 10_000, false)
 }
 
 func part1(input []string) (int, error) {
+	return solution(input, 20, true)
+}
+
+func solution(input []string, rounds int, getsBored bool) (int, error) {
 	h, err := newHerdFromInput(input)
 	if err != nil {
 		return 0, err
 	}
 
-	for i := 0; i < 20; i++ {
-		if err := h.round(); err != nil {
+	for i := 0; i < rounds; i++ {
+		if err := h.round(getsBored); err != nil {
 			return 0, err
 		}
 
-		fmt.Printf("After round %d, the monkeys are holding items with these worry levels:\n", i+1)
-		for j, m := range h {
-			fmt.Printf("Monkey %d: %v\n", j, m.items)
+		if !_roundSummary {
+			continue
+		}
+
+		if getsBored { // part 1
+			fmt.Printf("After round %d, the monkeys are holding items with these worry levels:\n", i+1)
+			for j, m := range h {
+				fmt.Printf("Monkey %d: %v\n", j, m.items)
+			}
+		}
+		if !getsBored && (i == 0 || i == 19 || (i+1)%1000 == 0) { // part 2
+			fmt.Printf("== After round %d ==\n", i+1)
+			for j, m := range h {
+				fmt.Printf("Monkey %d inspected items %d times.\n", j, m.inspections)
+			}
 		}
 	}
 
@@ -34,27 +60,29 @@ func part1(input []string) (int, error) {
 		result = append(result, m.inspections)
 	}
 	sort.Ints(result)
-
+	fmt.Println(result)
 	return result[len(result)-1] * result[len(result)-2], nil
 }
 
 type herd []*monkey
 
-func (h herd) round() error {
+func (h herd) round(getsBored bool) error {
 	for i, m := range h {
-		fmt.Printf("Monkey %d:\n", i)
+		msg("Monkey %d:\n", i)
 		for _, item := range m.items {
-			fmt.Printf("  Monkey inspects an item with a worry level of  %d.\n", item)
+			msg("  Monkey inspects an item with a worry level of  %d.\n", item)
 			if err := m.inspect(); err != nil {
 				return err
 			}
-			fmt.Printf("    Worry level goes from %d to %d.\n", item, m.items[0])
+			msg("    Worry level goes from %d to %d.\n", item, m.items[0])
 
-			m.getBored()
-			fmt.Printf("    Monkey gets bored with item. Worry level is divided by 3 to %d.\n", m.items[0])
+			if getsBored {
+				m.getBored()
+				msg("    Monkey gets bored with item. Worry level is divided by 3 to %d.\n", m.items[0])
+			}
 
 			target := m.test(m.items[0])
-			fmt.Printf("    Item with worry level %d is thrown to monkey %d.\n", m.items[0], target)
+			msg("    Item with worry level %d is thrown to monkey %d.\n", m.items[0], target)
 			m.throw(h[target])
 		}
 	}
@@ -132,4 +160,10 @@ func (m *monkey) throw(other *monkey) {
 	item := m.items[0]
 	m.items = m.items[1:]
 	other.items = append(other.items, item)
+}
+
+func msg(format string, v ...any) {
+	if _verbose {
+		fmt.Printf(format, v...)
+	}
 }
