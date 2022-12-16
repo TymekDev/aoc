@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/big"
 	"sort"
 	"strings"
 
@@ -106,9 +107,9 @@ func newHerdFromInput(input []string) (herd, error) {
 
 type monkey struct {
 	inspections int
-	operation   func(int) (int, error)
-	test        func(int) int
-	items       []int
+	operation   func(*big.Int) (*big.Int, error)
+	test        func(*big.Int) int
+	items       []*big.Int
 }
 
 // newMonkeyFromInput expects an input slice with a following structure:
@@ -153,7 +154,7 @@ func (m *monkey) inspect() error {
 }
 
 func (m *monkey) getBored() {
-	m.items[0] /= 3
+	m.items[0].Div(m.items[0], big.NewInt(3))
 }
 
 func (m *monkey) throw(other *monkey) {

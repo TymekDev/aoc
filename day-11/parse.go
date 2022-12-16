@@ -2,18 +2,19 @@ package main
 
 import (
 	"errors"
+	"math/big"
 	"strconv"
 	"strings"
 )
 
 // line: "  Starting items: 79, 98"
-func parseItems(line string) ([]int, error) {
+func parseItems(line string) ([]*big.Int, error) {
 	items := strings.Fields(strings.ReplaceAll(line, ",", ""))[2:]
-	result := make([]int, len(items))
+	result := make([]*big.Int, len(items))
 	for i, item := range items {
-		value, err := strconv.Atoi(item)
-		if err != nil {
-			return nil, err
+		value, ok := (&big.Int{}).SetString(item, 10)
+		if !ok {
+			return nil, errors.New("couldn't do the thing")
 		}
 
 		result[i] = value
@@ -23,7 +24,7 @@ func parseItems(line string) ([]int, error) {
 }
 
 // line: "  Operation: new = old * 19"
-func parseOperation(line string) (func(int) (int, error), error) {
+func parseOperation(line string) (func(*big.Int) (*big.Int, error), error) {
 	fields := strings.Fields(line)
 	lhs := fields[3]
 	op := fields[4]
@@ -31,36 +32,41 @@ func parseOperation(line string) (func(int) (int, error), error) {
 
 	switch {
 	case lhs == "old" && rhs == "old":
-		return func(x int) (int, error) {
+		return func(x *big.Int) (*big.Int, error) {
+			result := &big.Int{}
 			switch op {
 			case "+":
-				return x + x, nil
+				result.Add(x, x)
 			case "-":
-				return x - x, nil
 			case "*":
-				return x * x, nil
+				result.Mul(x, x)
 			case "/":
-				return x / x, nil
+				result.SetInt64(1)
+			default:
+				return nil, errors.New("operation not recognized: " + op)
 			}
-			return 0, errors.New("operation not recognized: " + op)
+			return result, nil
 		}, nil
 	case lhs == "old" && rhs != "old":
-		v, err := strconv.Atoi(rhs)
-		if err != nil {
-			return nil, err
+		v, ok := (&big.Int{}).SetString(rhs, 10)
+		if !ok {
+			return nil, errors.New("couldn't do the thing")
 		}
-		return func(x int) (int, error) {
+		return func(x *big.Int) (*big.Int, error) {
+			result := &big.Int{}
 			switch op {
 			case "+":
-				return x + v, nil
+				result.Add(x, v)
 			case "-":
-				return x - v, nil
+				result.Sub(x, v)
 			case "*":
-				return x * v, nil
+				result.Mul(x, v)
 			case "/":
-				return x / v, nil
+				result.Div(x, v)
+			default:
+				return nil, errors.New("operation not recognized: " + op)
 			}
-			return 0, errors.New("operation not recognized: " + op)
+			return result, nil
 		}, nil
 	}
 
@@ -70,11 +76,11 @@ func parseOperation(line string) (func(int) (int, error), error) {
 // test: "  Test: divisible by 23"
 // t: "    If true: throw to monkey 2"
 // f: "    If false: throw to monkey 3"
-func parseTest(test, t, f string) (func(int) int, error) {
+func parseTest(test, t, f string) (func(*big.Int) int, error) {
 	testFields := strings.Fields(test)
-	testValue, err := strconv.Atoi(testFields[len(testFields)-1])
-	if err != nil {
-		return nil, err
+	testValue, ok := (&big.Int{}).SetString(testFields[len(testFields)-1], 10)
+	if !ok {
+		return nil, errors.New("couldn't do the thing")
 	}
 
 	tFields := strings.Fields(t)
@@ -89,8 +95,8 @@ func parseTest(test, t, f string) (func(int) int, error) {
 		return nil, err
 	}
 
-	return func(x int) int {
-		if x%testValue == 0 {
+	return func(x *big.Int) int {
+		if (&big.Int{}).Mod(x, testValue).Cmp(&big.Int{}) == 0 {
 			return tValue
 		}
 		return fValue

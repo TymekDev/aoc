@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/big"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,7 +17,7 @@ func TestParseItems(t *testing.T) {
 func TestParseOperation(t *testing.T) {
 	operation, err := parseOperation("  Operation: new = old * 19")
 	require.NoError(t, err)
-	result, err := operation(5)
+	result, err := operation(big.NewInt(5))
 	require.NoError(t, err)
 	assert.Equal(t, 19*5, result)
 }
@@ -28,6 +29,6 @@ func TestParseTest(t *testing.T) {
 		"    If false: throw to monkey 3",
 	)
 	require.NoError(t, err)
-	assert.Equal(t, 2, test(23))
-	assert.Equal(t, 3, test(24))
+	assert.Equal(t, 2, test(big.NewInt(23)))
+	assert.Equal(t, 3, test(big.NewInt(24)))
 }
