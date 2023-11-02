@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"git.sr.ht/~tymek/aoc-2022"
+	"github.com/TymekDev/aoc/2022"
 )
 
 func main() {
